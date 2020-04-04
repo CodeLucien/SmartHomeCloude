@@ -14,7 +14,8 @@ public class SUserDao implements ISUserDao {
         UserInfo userInfo = null;
         Statement stmt = null;
         ResultSet rs = null;
-        String sql = "select userName,password,image from user where telePhone ='"+telePhone+"'";
+        String sql = "" +
+                "select userName,password,image from user where telePhone ='"+telePhone+"'";
         try {
             stmt = DBTool.getConnection().createStatement();
             rs = stmt.executeQuery(sql);
@@ -98,12 +99,37 @@ public class SUserDao implements ISUserDao {
         return true;
     }
 
+    @Override
+    public Boolean updatePasswordByTele(UserInfo userInfo) {
+        PreparedStatement ps = null;
+        String sql = "update user set password=? where telePhone=?";		//sql语句
+        try {
+            ps  = DBTool.getConnection().prepareStatement(sql);
+            ps.setString(1, userInfo.getPassWord());
+            ps.setString(2, userInfo.getTelePhone());
+            if (ps.executeUpdate()>0)
+                return true;
+            else
+                return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+            if(ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
 
         SUserDao sUserDao = new SUserDao();
-        UserInfo userInfo = new UserInfo("17865577553","张三","123456","");
-
-        System.out.println(sUserDao.selectUserByTele("1786557755"));
+        UserInfo userInfo = new UserInfo("17865577553","张三","!@#123","");
+        System.out.println(sUserDao.updatePasswordByTele(userInfo));
 
     }
 }

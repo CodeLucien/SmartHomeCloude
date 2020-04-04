@@ -30,4 +30,12 @@ public class SUserService implements ISUserService {
             return false;
         return sUserDao.selectUserByTele(userTele);
     }
+
+    @Override
+    public Boolean modifyPasswordByTele(UserInfo userInfo) {
+        System.out.println("bbb");
+        if (userInfo == null)
+            return false;
+        return sUserDao.updatePasswordByTele(userInfo);
+    }
 }

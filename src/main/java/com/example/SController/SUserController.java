@@ -22,6 +22,7 @@ public class  SUserController implements ISUserController {
     @Autowired
     private SUserService sUserService;
 
+    //登录
     @RequestMapping(value = "/login")
     @Override
     public void login(@RequestParam String telePhone, @RequestParam String password) {
@@ -60,6 +61,8 @@ public class  SUserController implements ISUserController {
 
     }
 
+
+    //注册用户
     @RequestMapping(value = "/createUserInfo")
     @Override
     public void createUserInfo(@RequestBody UserInfo userInfo) {
@@ -73,7 +76,7 @@ public class  SUserController implements ISUserController {
         }else{
             boolean createResult = sUserService.addUserInfo(userInfo);
 //            = sUserService.(facilityInfo);
-            if(createResult == false){
+            if(!createResult){
                 responseInfo.setMsg("注册失败");
             }else{
                 responseInfo.setMsg("注册成功");
@@ -89,6 +92,7 @@ public class  SUserController implements ISUserController {
 
     }
 
+    //查找用户
     @RequestMapping(value = "/isExistOfUser")
     @Override
     public void isExistOfUser(@RequestParam String telePhone) {
@@ -97,20 +101,49 @@ public class  SUserController implements ISUserController {
         response.setContentType("text/JavaScript;charset=utf-8");
         ResponseInfo responseInfo = new ResponseInfo();
         if(telePhone == null){
-            System.out.println("---aaaa----");
+//            System.out.println("---aaaa----");
             responseInfo.setCode(Common.Result.FALL.id);
             responseInfo.setMsg("无此用户");
         }else{
-            System.out.println("---bbb----");
-            boolean createResult = sUserService.findUserByTele(telePhone);
+//            System.out.println("---bbb----");
+            boolean selectResult = sUserService.findUserByTele(telePhone);
 //            = sUserService.(facilityInfo);
-            if(createResult == false){
+            if(selectResult == false){
                 responseInfo.setMsg(telePhone);
             }else{
                 responseInfo.setMsg("用户已存在");
             }
             responseInfo.setCode(Common.Result.SUCCESS.id);
-            responseInfo.setBody(createResult);
+            responseInfo.setBody(selectResult);
+        }
+        try {
+            response.getWriter().println(responseInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //修改密码
+    @RequestMapping(value = "/changePasswordByTele")
+    @Override
+    public void changePassword(@RequestBody UserInfo userInfo) {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletResponse response = servletRequestAttributes.getResponse();
+        response.setContentType("text/JavaScript;charset=utf-8");
+        ResponseInfo responseInfo = new ResponseInfo();
+        if(userInfo == null){
+            responseInfo.setCode(Common.Result.FALL.id);
+            responseInfo.setMsg("无此用户");
+        }else{
+            System.out.println("aaaa");
+            boolean changeResult = sUserService.modifyPasswordByTele(userInfo);
+            if (changeResult){
+                responseInfo.setMsg("修改成功");
+            }else {
+                responseInfo.setMsg("修改失败");
+            }
+            responseInfo.setCode(Common.Result.SUCCESS.id);
+            responseInfo.setBody(changeResult);
         }
         try {
             response.getWriter().println(responseInfo);
