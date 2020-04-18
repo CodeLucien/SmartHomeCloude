@@ -19,23 +19,27 @@ public class SHomeDao implements ISHomeDao {
     }
 
     @Override
-    public boolean insertHomeInfo(HomeInfo homeInfo) {
+    public int insertHomeInfo(HomeInfo homeInfo) {
         PreparedStatement stmt = null;
-        boolean insertResult = false;
+        int returnKey = 0 ;
         try {
             String sql = "insert into home (name,province,city,createTime) values (?,?,?,?)";
-            stmt = DBTool.getConnection().prepareStatement(sql);
+            stmt = DBTool.getConnection().prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+//            stmt = DBTool.getConnection().prepareStatement(sql);
             stmt.setString(1, homeInfo.getName());
             stmt.setString(2, homeInfo.getProvince());
             stmt.setString(3, homeInfo.getCity());
             stmt.setTimestamp(4, new Timestamp(homeInfo.getCreatTime().getTime()));
             if(stmt.executeUpdate()>0){
-                insertResult =true;
+                ResultSet resultSet = stmt.getGeneratedKeys();
+                resultSet.next();
+                 returnKey = resultSet.getInt(1);
+                System.out.println(returnKey);
+//                insertResult =true;
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }finally {
             try {
                 if (stmt!=null)
@@ -44,7 +48,7 @@ public class SHomeDao implements ISHomeDao {
                 e.printStackTrace();
             }
         }
-        return insertResult;
+        return returnKey;
     }
 
     @Override
@@ -83,7 +87,7 @@ public class SHomeDao implements ISHomeDao {
         try {
             stmt = DBTool.getConnection().createStatement();
 
-            String sql = "delete from home where homeId = "+ homeId;
+            String sql = "delete from home and homerelationship where homeId = "+ homeId;
             if(stmt.executeUpdate(sql) > 0)
                 deletResult = true;
 
